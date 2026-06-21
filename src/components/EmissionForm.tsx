@@ -43,9 +43,9 @@ export const EmissionForm: React.FC<{ userId: string }> = ({ userId }) => {
       setValue("");
       setNotes("");
       setDate(new Date().toISOString().split("T")[0]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error adding doc:", err);
-      setFormError(err.message || "Failed to save data to database.");
+      setFormError(err instanceof Error ? err.message : "Failed to save data to database.");
     } finally {
       setIsSubmitting(false);
     }
@@ -67,7 +67,7 @@ export const EmissionForm: React.FC<{ userId: string }> = ({ userId }) => {
             <select
               id="category"
               value={category}
-              onChange={(e) => setCategory(e.target.value as any)}
+              onChange={(e) => setCategory(e.target.value as "Transport" | "Energy" | "Food" | "Waste")}
             >
               <option value="Transport">Transport (Flights, Car, Fuel)</option>
               <option value="Energy">Energy (Electricity, Heat, AC)</option>

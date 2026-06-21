@@ -1,5 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 
+import * as Sentry from '@sentry/react';
+
 interface Props {
   children?: ReactNode;
 }
@@ -23,7 +25,6 @@ export class ErrorBoundary extends Component<Props, State> {
     
     // Sentry Telemetry Integration
     if (typeof window !== "undefined") {
-      const Sentry = require('@sentry/react');
       Sentry.captureException(error, { extra: errorInfo });
     }
   }

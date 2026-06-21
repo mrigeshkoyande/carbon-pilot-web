@@ -25,6 +25,7 @@ export const useEmissions = (userId: string | undefined) => {
 
   useEffect(() => {
     if (!userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLogs([]);
       setLastDoc(null);
       setHasMore(true);
@@ -99,8 +100,8 @@ export const useEmissions = (userId: string | undefined) => {
       setLogs((prev) => [...prev, ...nextLogs]);
       setLastDoc(nextSnapshot.docs[nextSnapshot.docs.length - 1] || null);
       setHasMore(nextSnapshot.docs.length === PAGE_SIZE);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }

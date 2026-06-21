@@ -6,13 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   auth,
   db,
-  sanitizeText, // Security sanitization
 } from "../firebase";
 import type { User } from "firebase/auth";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import {
-  collection,
-  addDoc,
   deleteDoc,
   doc
 } from "firebase/firestore";
@@ -46,7 +43,7 @@ const DashboardPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   
   // Custom Hook replaces useState and raw useEffect logic!
-  const { logs, loading, error: fetchError, loadMore, hasMore } = useEmissions(user?.uid);
+  const { logs, loading, loadMore, hasMore } = useEmissions(user?.uid);
 
   // Simple Actions state (persisted per session in localStorage)
   const [checkedActions, setCheckedActions] = useState<string[]>(() => {

@@ -18,8 +18,8 @@ describe('Security: sanitizeText', () => {
 
   it('should handle empty or undefined inputs gracefully', () => {
     expect(sanitizeText('')).toBe('');
-    expect(sanitizeText(undefined as any)).toBe('');
-    expect(sanitizeText(null as any)).toBe('');
+    expect(sanitizeText(undefined as unknown as string)).toBe('');
+    expect(sanitizeText(null as unknown as string)).toBe('');
   });
 });
 

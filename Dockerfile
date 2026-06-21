@@ -4,7 +4,11 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install
+# Force dev dependencies even if GCR sets NODE_ENV=production
+RUN npm install --include=dev
+
+# Increase Node memory limit for the TypeScript compiler
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Copy source code and build
 COPY . .

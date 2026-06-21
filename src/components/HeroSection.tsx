@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import AntiGravityWrapper from "./ui/AntiGravityWrapper";
-import HeroBadge from "./HeroBadge";
 import "./HeroSection.css";
 
 const containerVariants = {
@@ -49,8 +48,6 @@ const HeroSection: React.FC = () => {
           initial="hidden"
           animate="visible"
         >
-          <HeroBadge text="Introducing CarbonPilot v1.0" />
-
           {/* Cinematic Headline */}
           <motion.h1 className="hero__headline text-display-xl" variants={itemVariants}>
             Understand Your Impact.

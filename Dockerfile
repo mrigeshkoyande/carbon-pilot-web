@@ -1,16 +1,11 @@
 # Stage 1: Build the Vite React application
-FROM node:18-alpine AS build
-# Install libc6-compat and build tools to prevent Vite/Rolldown binary execution errors on Alpine Linux
-RUN apk add --no-cache libc6-compat python3 make g++
+FROM node:20 AS build
 WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
 # Force dev dependencies even if GCR sets NODE_ENV=production
 RUN npm install --include=dev
-
-# Increase Node memory limit for the TypeScript compiler
-ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Copy source code and build
 COPY . .

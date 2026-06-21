@@ -1,60 +1,134 @@
-# CarbonPilot — Carbon Footprint Awareness & Offset Platform
+# CarbonPilot Web Platform
 
-### Challenge 3 Alignment
-Design a solution that helps individuals **understand, track, and reduce** their carbon footprint through simple actions and personalized insights.
+<div align="center">
+  <img src="public/favicon.svg" alt="CarbonPilot Logo" width="120" />
+</div>
 
----
+<br />
 
-## 1. Core Architecture & Features
+**CarbonPilot** is a modern, responsive, and highly interactive web application designed to help individuals and organizations track, analyze, and offset their carbon emissions in real-time. 
 
-### Understand
-- **Interactive Metric Panels:** Computes **Total Emitted CO₂**, **Active Offsets** (earned from simple actions), and **Net Carbon Footprint** in real-time.
-- **Monthly Sustainability Cap:** Displays a visual gauge matching the user's Net Footprint against optimal monthly limit goals (`400 kg CO₂`).
-
-### Track
-- **Real-Time Logging Form:** Quick logging of carbon footprint events across 4 categories (Transport, Energy, Food, Waste) with custom notes and automatic timestamping.
-- **Live Database Stream:** Connects via real-time web socket listeners (`onSnapshot`) to render telemetry logs directly from the Firestore database as they are added or deleted.
-
-### Reduce (Actions & Insights)
-- **Daily Simple Actions Checklist:** Active offsets checklist (e.g. carpooling, plant-based diets, washing cold laundry) that instantly awards offset credits, decrementing the user's Net Carbon Score.
-- **Dynamic Insights Engine:** Inspects database records, identifies the highest carbon-driver category, and generates target action warnings (e.g. transport footprint offsets recommendations).
+Built with cutting-edge frontend technologies and a serverless backend, CarbonPilot aims to simplify the path to a Net Zero future through personalized insights and gamified sustainability metrics.
 
 ---
 
-## 2. Technical Quality & Code Structure
+## 🚀 Tech Stack
 
-### Code Quality (TypeScript)
-- Modular component structuring with clean file divisions (`pages/`, `components/`, `firebase.ts`).
-- Clean hooks usages (`useState`, `useEffect`) and strict interface bounds (`CarbonLog`, `User`, `SustainabilityAction`).
-- Memory leak protections: Clean up hooks returned by `onSnapshot` and `onAuthStateChanged` to prevent orphaned socket connections.
+### Frontend Architecture
+- **Framework**: React 18
+- **Language**: TypeScript for end-to-end type safety
+- **Build Tool**: Vite (Lightning-fast HMR and optimized production builds)
+- **Routing**: React Router DOM v6
+- **Animations**: Framer Motion (Declarative physics-based animations)
+- **Styling**: Custom CSS architecture with BEM-inspired methodologies and modern CSS variables (Glassmorphism & Gradients).
 
-### Security Defenses
-- **Input Sanitization:** Custom `sanitizeText` helper runs on all description logs to strip out and escape HTML/JavaScript tags (defense against Database-Stored Cross-Site Scripting XSS).
-- **Authentication Obfuscation:** Error mapping obfsucates specific failure logs (e.g. generic responses for missing users) to prevent account enumeration attacks.
-- **Route Guards:** Authenticated hooks shield the `/dashboard` view, redirecting unauthenticated users to `/login`.
-- **Credential Safety:** Configured via Vite `.env` parameters; does not commit raw API keys to Git.
+### Backend & Database (Serverless)
+- **Authentication**: Firebase Auth (Email/Password & Google OAuth capabilities)
+- **Database**: Firebase Firestore (Real-time NoSQL document database)
+- **Security**: Firestore Security Rules strictly locking reads/writes to authenticated users' own data.
 
-### Efficiency
-- Optimized React virtual DOM tree refreshes.
-- Zero-config high-fidelity mock database simulation falling back to `localStorage` if environment connection keys are missing.
-
-### Accessibility (WCAG 2.1 AAA Compliant)
-- Keyboard focus visible outlines (`:focus-visible`) configured globally for inputs, selectors, check-boxes, and button components.
-- Screen reader accessibility labels (`.sr-only` utility classes) and semantic HTML5 structures (`header`, `main`, `form`, `select`).
-- High-contrast color definitions (green and cyan accents exceeding 4.5:1 ratio).
+### Deployment & CI/CD
+- **Containerization**: Docker multi-stage builds
+- **Web Server**: Nginx (Configured for SPA routing and static caching)
+- **Cloud Hosting**: Google Cloud Run (GCR)
+- **CI/CD**: GitHub Actions (`deploy.yml` pipeline securely injects secrets and pushes to GCR on `main` branch merges)
 
 ---
 
-## 3. Automated Logic Testing
+## 📂 Codebase Structure
 
-The platform features an automated unit test suite checking logic compilation and core algorithm parameters (sanitization boundaries, auth error maps, and category calculations).
+The application is modularized into distinct directories for scalability and maintainability:
 
-### Run Verification Compile & Unit Tests
-```bash
-npm run test
+```text
+carbon-pilot-web/
+├── .github/                # GitHub Issue/PR Templates & Actions CI/CD workflows
+├── public/                 # Static assets (Favicons, manifest, static SVGs)
+├── src/                    # Primary application source code
+│   ├── assets/             # Images and local media
+│   ├── components/         # Reusable, stateless UI components
+│   │   ├── ui/             # Micro-components (e.g., AntiGravityWrapper)
+│   │   ├── Navbar.tsx      # Global navigation header
+│   │   ├── HeroSection.tsx # Animated landing page hero
+│   │   └── ...
+│   ├── pages/              # Stateful route views
+│   │   ├── DashboardPage   # Core logged-in user telemetry and logging UI
+│   │   ├── LoginPage       # Authentication and registration flow
+│   │   ├── PlatformPage    # Feature showcase page
+│   │   └── PricingPage     # Subscription tiers
+│   ├── App.tsx             # Root React Router provider
+│   ├── main.tsx            # React DOM mounting and strict mode
+│   └── firebase.ts         # Centralized Firebase initialization and exports
+├── Dockerfile              # Multi-stage production container configuration
+├── nginx.conf              # SPA-optimized web server routing
+└── package.json            # NPM dependencies and project scripts
 ```
 
-### Run Local Development Server
-```bash
-npm run dev
-```
+---
+
+## 🧠 Core Features
+
+1. **Dynamic Emissions Logging**: Users can log daily emission activities (Transport, Energy, Food, Waste) with exact values and contextual notes.
+2. **Real-time Synchronization**: Data instantly syncs across devices using Firestore `onSnapshot` listeners.
+3. **Personalized Insights Engine**: The dashboard evaluates telemetry data to determine the user's highest carbon impact category and provides actionable, dynamically generated pathways to reduce their footprint.
+4. **Monthly Sustainability Cap**: Visual progress bars track net carbon footprints against dynamically recommended monthly targets.
+5. **Cinematic UI**: Extensive use of Framer Motion for scroll reveals, staggered entry animations, and interactive hover states (AntiGravity wrappers).
+
+---
+
+## 🛠 Local Development Setup
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- A [Firebase Project](https://console.firebase.google.com/)
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/mrigeshkoyande/carbon-pilot-web.git
+   cd carbon-pilot-web
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables:**
+   - Copy the `.env.example` file to a new file named `.env`.
+   - Fill in your Firebase configuration keys from the Firebase Console.
+   ```env
+   VITE_FIREBASE_API_KEY=your_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_domain
+   ...
+   ```
+
+4. **Start the local Vite development server:**
+   ```bash
+   npm run dev
+   ```
+   *The app will be available at `http://localhost:5173`.*
+
+---
+
+## 📦 Docker & Production
+
+To test the production container locally using Docker:
+
+1. **Build the image:**
+   ```bash
+   docker build -t carbon-pilot-web .
+   ```
+2. **Run the container:**
+   ```bash
+   docker run -p 8080:8080 carbon-pilot-web
+   ```
+   *The app will be served via Nginx at `http://localhost:8080`.*
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct, and the process for submitting Pull Requests to us. 
+
+*If you encounter a bug or have a feature request, please use the provided GitHub Issue templates.*

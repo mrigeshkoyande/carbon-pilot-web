@@ -20,7 +20,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    // Here we would integrate Sentry or Firebase Crashlytics
+    
+    // Sentry Telemetry Integration
+    if (typeof window !== "undefined") {
+      const Sentry = require('@sentry/react');
+      Sentry.captureException(error, { extra: errorInfo });
+    }
   }
 
   public render() {

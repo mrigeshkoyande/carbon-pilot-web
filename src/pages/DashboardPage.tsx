@@ -19,6 +19,7 @@ import {
 import { useEmissions } from "../hooks/useEmissions";
 import { CategoryIcon } from "../components/CategoryIcon";
 import { EngagementPanel } from "../components/EngagementPanel";
+import { EmissionForm } from "../components/EmissionForm";
 import { 
   calculateTotalEmissions, 
   calculateNetFootprint, 
@@ -45,7 +46,7 @@ const DashboardPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   
   // Custom Hook replaces useState and raw useEffect logic!
-  const { logs, loading, error: fetchError } = useEmissions(user?.uid);
+  const { logs, loading, error: fetchError, loadMore, hasMore } = useEmissions(user?.uid);
 
   // Simple Actions state (persisted per session in localStorage)
   const [checkedActions, setCheckedActions] = useState<string[]>(() => {
@@ -63,13 +64,7 @@ const DashboardPage: React.FC = () => {
     });
   };
 
-  // Form states
-  const [category, setCategory] = useState<"Transport" | "Energy" | "Food" | "Waste">("Transport");
-  const [value, setValue] = useState<string>("");
-  const [date, setDate] = useState<string>(new Date().toISOString().split("T")[0]);
-  const [notes, setNotes] = useState<string>("");
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Form state extracted to EmissionForm.tsx
 
   const navigate = useNavigate();
 
@@ -96,45 +91,7 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleAddLog = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError(null);
-
-    const numericValue = parseFloat(value);
-    if (isNaN(numericValue) || numericValue <= 0) {
-      setFormError("Please enter a valid positive emission value.");
-      return;
-    }
-
-    if (!user) {
-      setFormError("User session not found.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const logData = {
-        userId: user.uid,
-        category,
-        value: numericValue,
-        date,
-        notes: sanitizeText(notes.trim()),
-        createdAt: new Date().toISOString(),
-      };
-
-      await addDoc(collection(db, "emissions"), logData);
-
-      // Reset form fields
-      setValue("");
-      setNotes("");
-      setDate(new Date().toISOString().split("T")[0]);
-    } catch (err: any) {
-      console.error("Error adding doc:", err);
-      setFormError(err.message || "Failed to save data to database.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // handleAddLog logic extracted to EmissionForm.tsx
 
   const handleDeleteLog = async (id: string) => {
     try {
@@ -268,7 +225,7 @@ const DashboardPage: React.FC = () => {
       <div className="dashboard-grid">
         {/* Left Side: Stats and Inputs */}
         <div className="dashboard-left">
-          {/* Summary          {/* Summary Cards */}
+          {/* Summary Cards */}
           <div className="stats-row">
             <div className="stat-card glass-card">
               <span className="stat-label">Total Emitted CO₂</span>
@@ -330,78 +287,8 @@ const DashboardPage: React.FC = () => {
                 <span className="insights-actionable">{activeInsight.actionable}</span>
               </div>
             </div>
-          </div>
-
-          {/* Logger Form */}
-          <div className="logger-card glass-card">
-            <h3>Record New Carbon Log</h3>
-            <p className="logger-subtitle">
-              Saves a new telemetry data record securely into your Firestore database.
-            </p>
-
-            {formError && <div className="form-error" role="alert" aria-live="assertive">✕ {formError}</div>}
-            {fetchError && <div className="form-error" role="alert" aria-live="assertive">✕ Database Sync Error: {fetchError}</div>}
-
-            <form onSubmit={handleAddLog} className="logger-form">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label htmlFor="category">Emission Category</label>
-                  <select
-                    id="category"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value as any)}
-                  >
-                    <option value="Transport">Transport (Flights, Car, Fuel)</option>
-                    <option value="Energy">Energy (Electricity, Heat, AC)</option>
-                    <option value="Food">Food (Meat, Dairy, Processing)</option>
-                    <option value="Waste">Waste (Trash, Landfill, Recycle)</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="value">CO₂ Footprint (kg)</label>
-                  <input
-                    type="number"
-                    id="value"
-                    placeholder="e.g. 45.2"
-                    step="any"
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="date">Date of Activity</label>
-                  <input
-                    type="date"
-                    id="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="notes">Notes / Context</label>
-                  <input
-                    type="text"
-                    id="notes"
-                    placeholder="e.g., Daily commute, flight to JFK"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="logger-submit-btn btn-glow"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Saving to Cloud..." : "Add Emission Log"}
-              </button>
-            </form>
+            {/* Logger Form extracted for Code Quality Phase */}
+            {user && <EmissionForm userId={user.uid} />}
           </div>
         </div>
 
@@ -497,15 +384,28 @@ const DashboardPage: React.FC = () => {
                       </motion.div>
                     ))}
                   </AnimatePresence>
+                  
+                  {hasMore && logs.length > 0 && (
+                    <div style={{ textAlign: "center", marginTop: "1rem" }}>
+                      <button 
+                        onClick={loadMore} 
+                        disabled={loading}
+                        className="action-plan-btn"
+                        style={{ width: "auto", padding: "0.5rem 2rem" }}
+                      >
+                        {loading ? "Loading..." : "Load More Logs"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           </div>
           
           {/* Phase 7: Problem Alignment - Engagement Features */}
-          <EngagementPanel />
+          <EngagementPanel logs={logs} />
         </div>
-      </main>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import type { User } from "firebase/auth";
 
 // For a React SPA, these keys are public by design. Hardcoding them here 
@@ -17,8 +19,19 @@ const firebaseConfig = {
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+
+// Initialize App Check (using a placeholder site key for Enterprise compliance)
+if (typeof window !== "undefined") {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider('6Ld_placeholder_site_key_for_app_check'),
+    isTokenAutoRefreshEnabled: true
+  });
+}
+
 const auth = getAuth(app);
 const db = getFirestore(app);
+const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
+import { GoogleAuthProvider } from "firebase/auth";
 const googleProvider = new GoogleAuthProvider();
 
 // Security: Sanitization helper to prevent XSS script injection
@@ -59,5 +72,5 @@ export const getErrorMessage = (error: any): string => {
   }
 };
 
-export { auth, db, googleProvider };
+export { auth, db, googleProvider, analytics };
 export type { User };

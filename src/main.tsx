@@ -5,9 +5,9 @@ import './index.css'
 import App from './App.tsx'
 import { ErrorBoundary } from './components/ErrorBoundary.tsx'
 
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
-    dsn: "https://examplePublicKey@o0.ingest.sentry.io/0", // Placeholder for Enterprise
+    dsn: import.meta.env.VITE_SENTRY_DSN,
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),

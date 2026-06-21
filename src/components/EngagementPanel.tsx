@@ -81,7 +81,7 @@ export const EngagementPanel: React.FC<EngagementPanelProps> = React.memo(({ log
             <li>2. You - {stats.total.toFixed(1)} kg total</li>
             <li>3. GreenThumb - 82 kg offset</li>
           </ol>
-          <button className="action-plan-btn">View Personalized Action Plan</button>
+          <button className="action-plan-btn" aria-label="View your personalized Carbon Action Plan">View Personalized Action Plan</button>
         </div>
 
         {/* Feature 8: Carbon Savings Calculator */}

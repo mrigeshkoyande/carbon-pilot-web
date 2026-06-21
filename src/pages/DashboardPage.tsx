@@ -377,6 +377,7 @@ const DashboardPage: React.FC = () => {
                             onClick={() => handleDeleteLog(log.id!)}
                             className="delete-log-btn"
                             title="Delete record from Firestore"
+                            aria-label={`Delete emission record for ${log.category}`}
                           >
                             ✕
                           </button>
@@ -392,6 +393,9 @@ const DashboardPage: React.FC = () => {
                         disabled={loading}
                         className="action-plan-btn"
                         style={{ width: "auto", padding: "0.5rem 2rem" }}
+                        aria-busy={loading}
+                        aria-live="polite"
+                        aria-label="Load older emission logs"
                       >
                         {loading ? "Loading..." : "Load More Logs"}
                       </button>

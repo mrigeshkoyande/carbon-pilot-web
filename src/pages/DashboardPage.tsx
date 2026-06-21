@@ -259,10 +259,17 @@ const DashboardPage: React.FC = () => {
             <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" />
           </svg>
         );
+      case "Food":
+        return (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        );
       default:
         return null;
     }
   };
+
 
   return (
     <div className="dashboard-page">
@@ -518,7 +525,7 @@ const DashboardPage: React.FC = () => {
                         <div className="log-right">
                           <span className="log-value">{log.value.toFixed(1)} kg</span>
                           <button
-                            onClick={() => handleDeleteLog(log.id)}
+                            onClick={() => handleDeleteLog(log.id!)}
                             className="delete-log-btn"
                             title="Delete record from Firestore"
                           >

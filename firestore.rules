@@ -1,0 +1,13 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Secure emissions collection
+    match /emissions/{document} {
+      // Users can only read and write their own emission logs
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Allow creation if the new document's userId matches the authenticated user
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+  }
+}

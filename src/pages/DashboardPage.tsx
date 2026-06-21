@@ -14,22 +14,15 @@ import {
   collection,
   addDoc,
   deleteDoc,
-  doc,
-  query,
-  where,
-  orderBy,
-  onSnapshot
+  doc
 } from "firebase/firestore";
+import { useEmissions } from "../hooks/useEmissions";
+import { 
+  calculateTotalEmissions, 
+  calculateNetFootprint, 
+  calculateGoalPercentage 
+} from "../utils/emissionsMath";
 import "./DashboardPage.css";
-
-interface CarbonLog {
-  id: string;
-  category: "Transport" | "Energy" | "Food" | "Waste";
-  value: number; // in kg CO2
-  date: string;
-  notes: string;
-  createdAt?: string;
-}
 
 interface SustainabilityAction {
   id: string;
@@ -48,8 +41,9 @@ const ACTIONS_LIST: SustainabilityAction[] = [
 
 const DashboardPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [logs, setLogs] = useState<CarbonLog[]>([]);
-  const [loading, setLoading] = useState(true);
+  
+  // Custom Hook replaces useState and raw useEffect logic!
+  const { logs, loading, error: fetchError } = useEmissions(user?.uid);
 
   // Simple Actions state (persisted per session in localStorage)
   const [checkedActions, setCheckedActions] = useState<string[]>(() => {
@@ -89,40 +83,7 @@ const DashboardPage: React.FC = () => {
     return () => unsubscribe();
   }, [navigate]);
 
-  // Load and listen to emissions collection from Firestore
-  useEffect(() => {
-    if (!user) return;
-
-    setLoading(true);
-    // Real-time query matching userId, ordered by creation date descending
-    const emissionsRef = collection(db, "emissions");
-    const q = query(
-      emissionsRef,
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc")
-    );
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const loadedLogs: CarbonLog[] = [];
-        snapshot.forEach((doc: any) => {
-          loadedLogs.push({
-            id: doc.id,
-            ...doc.data(),
-          } as CarbonLog);
-        });
-        setLogs(loadedLogs);
-        setLoading(false);
-      },
-      (error: any) => {
-        console.error("Firestore loading error:", error);
-        setLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [user]);
+  // (Firebase onSnapshot subscription removed - handled by useEmissions hook)
 
   const handleSignOut = async () => {
     try {
@@ -181,10 +142,8 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  // Efficiency: Memoize mathematical metrics and sustainability calculations
-  const totalEmissions = useMemo(() => {
-    return logs.reduce((sum, log) => sum + log.value, 0);
-  }, [logs]);
+  // Efficiency: Math metrics utilizing external utilities
+  const totalEmissions = useMemo(() => calculateTotalEmissions(logs), [logs]);
   
   const totalOffsetCredits = useMemo(() => {
     return ACTIONS_LIST
@@ -192,9 +151,9 @@ const DashboardPage: React.FC = () => {
       .reduce((sum, action) => sum + action.impact, 0);
   }, [checkedActions]);
 
-  const netFootprint = useMemo(() => Math.max(0, totalEmissions - totalOffsetCredits), [totalEmissions, totalOffsetCredits]);
+  const netFootprint = useMemo(() => calculateNetFootprint(totalEmissions, totalOffsetCredits), [totalEmissions, totalOffsetCredits]);
   const monthlyGoal = 400; // in kg CO2 limit
-  const goalPercentage = useMemo(() => Math.min((netFootprint / monthlyGoal) * 100, 100), [netFootprint]);
+  const goalPercentage = useMemo(() => calculateGoalPercentage(netFootprint, monthlyGoal), [netFootprint]);
 
   const handleExportAnalytics = () => {
     alert("Analytics report exported successfully! (Hackathon Feature Demo)");
@@ -411,7 +370,8 @@ const DashboardPage: React.FC = () => {
               Saves a new telemetry data record securely into your Firestore database.
             </p>
 
-            {formError && <div className="form-error">✕ {formError}</div>}
+            {formError && <div className="form-error" role="alert" aria-live="assertive">✕ {formError}</div>}
+            {fetchError && <div className="form-error" role="alert" aria-live="assertive">✕ Database Sync Error: {fetchError}</div>}
 
             <form onSubmit={handleAddLog} className="logger-form">
               <div className="form-grid">

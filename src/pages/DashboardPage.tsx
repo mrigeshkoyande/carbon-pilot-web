@@ -18,6 +18,7 @@ import {
 } from "firebase/firestore";
 import { useEmissions } from "../hooks/useEmissions";
 import { CategoryIcon } from "../components/CategoryIcon";
+import { EngagementPanel } from "../components/EngagementPanel";
 import { 
   calculateTotalEmissions, 
   calculateNetFootprint, 
@@ -500,8 +501,11 @@ const DashboardPage: React.FC = () => {
               )}
             </div>
           </div>
+          
+          {/* Phase 7: Problem Alignment - Engagement Features */}
+          <EngagementPanel />
         </div>
-      </div>
+      </main>
     </div>
   );
 };

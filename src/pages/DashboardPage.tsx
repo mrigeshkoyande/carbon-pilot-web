@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -181,16 +181,24 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  // Math metrics and sustainability calculations
-  const totalEmissions = logs.reduce((sum, log) => sum + log.value, 0);
+  // Efficiency: Memoize mathematical metrics and sustainability calculations
+  const totalEmissions = useMemo(() => {
+    return logs.reduce((sum, log) => sum + log.value, 0);
+  }, [logs]);
   
-  const totalOffsetCredits = ACTIONS_LIST
-    .filter((action) => checkedActions.includes(action.id))
-    .reduce((sum, action) => sum + action.impact, 0);
+  const totalOffsetCredits = useMemo(() => {
+    return ACTIONS_LIST
+      .filter((action) => checkedActions.includes(action.id))
+      .reduce((sum, action) => sum + action.impact, 0);
+  }, [checkedActions]);
 
-  const netFootprint = Math.max(0, totalEmissions - totalOffsetCredits);
+  const netFootprint = useMemo(() => Math.max(0, totalEmissions - totalOffsetCredits), [totalEmissions, totalOffsetCredits]);
   const monthlyGoal = 400; // in kg CO2 limit
-  const goalPercentage = Math.min((netFootprint / monthlyGoal) * 100, 100);
+  const goalPercentage = useMemo(() => Math.min((netFootprint / monthlyGoal) * 100, 100), [netFootprint]);
+
+  const handleExportAnalytics = () => {
+    alert("Analytics report exported successfully! (Hackathon Feature Demo)");
+  };
 
   // Dynamic Insights Engine evaluating telemetry and categories
   const getInsights = () => {
@@ -314,12 +322,18 @@ const DashboardPage: React.FC = () => {
             <p className="user-email">{user?.email}</p>
           </div>
         </div>
-        <button onClick={handleSignOut} className="signout-btn glass-card">
-          Sign Out
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-          </svg>
-        </button>
+          <button onClick={handleExportAnalytics} className="signout-btn glass-card" style={{marginRight: '1rem'}} aria-label="Export Analytics Report">
+            Export Report
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+            </svg>
+          </button>
+          <button onClick={handleSignOut} className="signout-btn glass-card" aria-label="Sign Out">
+            Sign Out
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg>
+          </button>
       </header>
 
       {/* Main Grid Layout */}

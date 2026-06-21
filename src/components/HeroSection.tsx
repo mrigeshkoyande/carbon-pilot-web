@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import AntiGravityWrapper from "./ui/AntiGravityWrapper";
+import HeroBadge from "./HeroBadge";
 import "./HeroSection.css";
 
 const containerVariants = {
@@ -48,6 +49,8 @@ const HeroSection: React.FC = () => {
           initial="hidden"
           animate="visible"
         >
+          <HeroBadge text="Introducing CarbonPilot v1.0" />
+
           {/* Cinematic Headline */}
           <motion.h1 className="hero__headline text-display-xl" variants={itemVariants}>
             Understand Your Impact.
@@ -69,6 +72,7 @@ const HeroSection: React.FC = () => {
                 className="hero__cta-primary btn-glow"
                 id="hero-start-assessment"
                 onClick={() => navigate("/platform")}
+                aria-label="Start your free carbon assessment"
               >
                 Start Free Assessment
                 <svg
@@ -81,6 +85,7 @@ const HeroSection: React.FC = () => {
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  aria-hidden="true"
                 >
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>

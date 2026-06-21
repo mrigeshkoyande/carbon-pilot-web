@@ -54,7 +54,7 @@ const Navbar: React.FC = () => {
       <div className="navbar__container">
         {/* Brand */}
         <Link to="/" className="navbar__brand">
-          <div className="navbar__logo-mark">
+          <div className="navbar__logo-mark" aria-hidden="true">
             <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
               <circle cx="16" cy="16" r="15" fill="rgba(98,223,125,0.1)" stroke="#62df7d" strokeWidth="1.5"/>
               <path d="M16 6 C10 12, 10 20, 16 26 C22 20, 22 12, 16 6Z" fill="#62df7d" opacity="0.9"/>
@@ -123,12 +123,13 @@ const Navbar: React.FC = () => {
         <button
           className={`navbar__hamburger ${mobileMenuOpen ? "navbar__hamburger--open" : ""}`}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle navigation menu"
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileMenuOpen}
           id="nav-menu-toggle"
         >
-          <span className="navbar__hamburger-line" />
-          <span className="navbar__hamburger-line" />
-          <span className="navbar__hamburger-line" />
+          <span className="navbar__hamburger-line" aria-hidden="true" />
+          <span className="navbar__hamburger-line" aria-hidden="true" />
+          <span className="navbar__hamburger-line" aria-hidden="true" />
         </button>
       </div>
 
